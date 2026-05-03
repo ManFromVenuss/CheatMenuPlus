@@ -16,7 +16,7 @@ public class SparrohPlugin : BaseUnityPlugin
 {
     public const string PluginGUID = "venuss.cheatmenuplus";
     public const string PluginName = "CheatMenu+";
-    public const string PluginVersion = "1.5.4";
+    public const string PluginVersion = "1.5.5";
     
     public static ManualLogSource Logger;
     public InputActionMap _actionmap;

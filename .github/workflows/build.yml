@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore private reference assemblies
+        shell: pwsh
+        env:
+          MYCOPUNK_REFERENCES_ZIP_B64: ${{ secrets.MYCOPUNK_REFERENCES_ZIP_B64 }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:MYCOPUNK_REFERENCES_ZIP_B64)) {
+            Write-Error "Missing MYCOPUNK_REFERENCES_ZIP_B64. Add a base64 zip secret containing Managed/*.dll and BepInExCore/0Harmony.dll."
+          }
+
+          $zipPath = Join-Path $env:RUNNER_TEMP "mycopunk-references.zip"
+          [IO.File]::WriteAllBytes($zipPath, [Convert]::FromBase64String($env:MYCOPUNK_REFERENCES_ZIP_B64))
+          Expand-Archive -Path $zipPath -DestinationPath "${{ github.workspace }}\references" -Force
+
+      - name: Build
+        run: >
+          dotnet build .\CSPROJECT.csproj
+          -c Release
+          /p:GameManagedPath="${{ github.workspace }}\references\Managed"
+          /p:BepInExCorePath="${{ github.workspace }}\references\BepInExCore"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: CheatMenuPlus
+          path: |
+            bin/Release/net48/CheatMenu.dll
+            README.md
+            CHANGELOG.md
+            LICENSE
+            thunderstore.toml

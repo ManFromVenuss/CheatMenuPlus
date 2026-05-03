@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.5 (2026-05-03)
+
+### Added
+* Added a GitHub Actions build workflow that restores private Mycopunk/BepInEx references from a repository secret and uploads a build artifact.
+
+### Changed
+* Project reference paths can now be overridden with `GameManagedPath` and `BepInExCorePath` MSBuild properties.
+* The r2modman post-build copy is skipped in CI.
+
 ## 1.5.4 (2026-05-03)
 
 ### Changed

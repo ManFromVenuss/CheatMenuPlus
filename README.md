@@ -71,6 +71,27 @@ This project is based on Sparroh's CheatMenu, which itself is a successor to Sli
 - [BepInEx](https://github.com/BepInEx/BepInEx) - Version 5.4.2403 or compatible
 - .NET Framework 4.8
 
+## GitHub Actions Builds
+
+This repository includes a GitHub Actions build workflow. Because Mycopunk and Unity assemblies are not redistributable project files, the workflow expects a private repository secret named `MYCOPUNK_REFERENCES_ZIP_B64`.
+
+Create a zip with this structure, then base64 encode it into that secret:
+
+```text
+Managed/
+  Assembly-CSharp.dll
+  UnityEngine.dll
+  UnityEngine.*.dll
+  Unity.*.dll
+  System.Memory.dll
+  System.IO.Hashing.dll
+  Google.Protobuf.dll
+BepInExCore/
+  0Harmony.dll
+```
+
+On pushes, pull requests, or manual runs, the workflow builds `CheatMenu.dll` and uploads a `CheatMenuPlus` artifact. It does not publish to Thunderstore automatically.
+
 ## Author
 
 - Venuss (CheatMenu+ fork/continuation)
