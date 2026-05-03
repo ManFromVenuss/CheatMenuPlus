@@ -97,6 +97,19 @@ Commit the resulting `references.zip.gpg`, then add the encryption passphrase as
 
 On pushes, pull requests, or manual runs, the workflow builds `CheatMenu.dll` and uploads a `CheatMenuPlus` artifact. It does not publish to Thunderstore automatically.
 
+## GitHub Releases
+
+This repository also includes a tag-based release workflow. To create a release, push a version tag:
+
+```powershell
+git tag v1.5.5
+git push origin v1.5.5
+```
+
+The release workflow builds the mod, creates `CheatMenuPlus-v1.5.5.zip`, and publishes it as a GitHub Release asset. You can also run the `Release` workflow manually from the Actions tab and provide a tag input.
+
+GitHub Releases are separate from Thunderstore publishing. A release workflow creates a downloadable GitHub release; publishing to Thunderstore still requires a Thunderstore token and a publish workflow.
+
 ## Author
 
 - Venuss (CheatMenu+ fork/continuation)

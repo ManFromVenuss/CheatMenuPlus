@@ -4,6 +4,7 @@
 
 ### Added
 * Added a GitHub Actions build workflow that restores private Mycopunk/BepInEx references from a repository secret and uploads a build artifact.
+* Added a tag-based GitHub Actions release workflow that builds the mod, zips a release package, and creates a GitHub Release.
 
 ### Changed
 * Project reference paths can now be overridden with `GameManagedPath` and `BepInExCorePath` MSBuild properties.

@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v1.5.5"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore private reference assemblies
+        shell: pwsh
+        env:
+          LARGE_SECRET_PASSPHRASE: ${{ secrets.LARGE_SECRET_PASSPHRASE }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:LARGE_SECRET_PASSPHRASE)) {
+            Write-Error "Missing LARGE_SECRET_PASSPHRASE. Add the passphrase used to encrypt references.zip.gpg as a repository secret."
+          }
+
+          $zipPath = Join-Path $env:RUNNER_TEMP "mycopunk-references.zip"
+          gpg --quiet --batch --yes --decrypt --passphrase="$env:LARGE_SECRET_PASSPHRASE" --output $zipPath references.zip.gpg
+          Expand-Archive -Path $zipPath -DestinationPath "${{ github.workspace }}\references" -Force
+
+      - name: Build
+        run: >
+          dotnet build .\CSPROJECT.csproj
+          -c Release
+          /p:GameManagedPath="${{ github.workspace }}\references\Managed"
+          /p:BepInExCorePath="${{ github.workspace }}\references\BepInExCore"
+
+      - name: Package release zip
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $tag = "${{ inputs.tag }}"
+          }
+
+          $packageRoot = Join-Path $env:RUNNER_TEMP "CheatMenuPlus"
+          $pluginRoot = Join-Path $packageRoot "BepInEx\plugins\CheatMenuPlus"
+          New-Item -ItemType Directory -Force -Path $pluginRoot | Out-Null
+
+          Copy-Item "bin\Release\net48\CheatMenu.dll" (Join-Path $pluginRoot "CheatMenu.dll") -Force
+          Copy-Item "README.md" $packageRoot -Force
+          Copy-Item "CHANGELOG.md" $packageRoot -Force
+          Copy-Item "LICENSE" $packageRoot -Force
+          Copy-Item "thunderstore.toml" $packageRoot -Force
+          Copy-Item "icon.png" $packageRoot -Force
+
+          $zipName = "CheatMenuPlus-$tag.zip"
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE $zipName
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath -Force
+          }
+          Compress-Archive -Path (Join-Path $packageRoot "*") -DestinationPath $zipPath -Force
+          "RELEASE_TAG=$tag" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "RELEASE_ZIP=$zipName" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Create GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $notes = @"
+          CheatMenu+ $env:RELEASE_TAG
+
+          Built automatically from $env:GITHUB_SHA.
+
+          This project is based on Sparroh's CheatMenu, which itself is a successor to Slidedrum's MenuMod2.
+          "@
+
+          gh release create $env:RELEASE_TAG $env:RELEASE_ZIP --title "CheatMenu+ $env:RELEASE_TAG" --notes $notes
