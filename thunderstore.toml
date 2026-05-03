@@ -28,6 +28,10 @@ target = "CHANGELOG.md"
 source = "LICENSE"
 target = "LICENSE"
 
+[[build.copy]]
+source = "manifest.json"
+target = "manifest.json"
+
 [publish]
 repository = "https://thunderstore.io"
 communities = [ "mycopunk" ]

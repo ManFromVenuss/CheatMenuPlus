@@ -1,0 +1,9 @@
+{
+  "name": "CheatMenuPlus",
+  "version_number": "1.5.5",
+  "website_url": "https://github.com/ManFromVenuss/CheatMenuPlus",
+  "description": "CheatMenu+ is a fork of Sparroh's CheatMenu, based on Slidedrum's MenuMod2, with extra cheats and custom upgrade/cosmetic tools.",
+  "dependencies": [
+    "BepInEx-BepInExPack_Mycopunk-5.4.2403"
+  ]
+}
