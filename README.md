@@ -83,7 +83,6 @@ Managed/
   UnityEngine.dll
   UnityEngine.*.dll
   Unity.*.dll
-  System.Memory.dll
   System.IO.Hashing.dll
   Google.Protobuf.dll
 BepInExCore/

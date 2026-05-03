@@ -52,9 +52,6 @@
       <Reference Include="Assembly-CSharp">
         <HintPath>$(GameManagedPath)\Assembly-CSharp.dll</HintPath>
       </Reference>
-      <Reference Include="System.Memory">
-        <HintPath>$(GameManagedPath)\System.Memory.dll</HintPath>
-      </Reference>
       <Reference Include="Unity.Collections">
         <HintPath>$(GameManagedPath)\Unity.Collections.dll</HintPath>
       </Reference>
