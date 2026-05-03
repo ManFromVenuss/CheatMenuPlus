@@ -25,14 +25,14 @@ jobs:
       - name: Restore private reference assemblies
         shell: pwsh
         env:
-          MYCOPUNK_REFERENCES_ZIP_B64: ${{ secrets.MYCOPUNK_REFERENCES_ZIP_B64 }}
+          LARGE_SECRET_PASSPHRASE: ${{ secrets.LARGE_SECRET_PASSPHRASE }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:MYCOPUNK_REFERENCES_ZIP_B64)) {
-            Write-Error "Missing MYCOPUNK_REFERENCES_ZIP_B64. Add a base64 zip secret containing Managed/*.dll and BepInExCore/0Harmony.dll."
+          if ([string]::IsNullOrWhiteSpace($env:LARGE_SECRET_PASSPHRASE)) {
+            Write-Error "Missing LARGE_SECRET_PASSPHRASE. Add the passphrase used to encrypt references.zip.gpg as a repository secret."
           }
 
           $zipPath = Join-Path $env:RUNNER_TEMP "mycopunk-references.zip"
-          [IO.File]::WriteAllBytes($zipPath, [Convert]::FromBase64String($env:MYCOPUNK_REFERENCES_ZIP_B64))
+          gpg --quiet --batch --yes --decrypt --passphrase="$env:LARGE_SECRET_PASSPHRASE" --output $zipPath references.zip.gpg
           Expand-Archive -Path $zipPath -DestinationPath "${{ github.workspace }}\references" -Force
 
       - name: Build

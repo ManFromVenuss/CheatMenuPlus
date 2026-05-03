@@ -8,6 +8,7 @@
 ### Changed
 * Project reference paths can now be overridden with `GameManagedPath` and `BepInExCorePath` MSBuild properties.
 * The r2modman post-build copy is skipped in CI.
+* The build workflow now restores Mycopunk/BepInEx references from encrypted `references.zip.gpg` using `LARGE_SECRET_PASSPHRASE`.
 
 ## 1.5.4 (2026-05-03)
 

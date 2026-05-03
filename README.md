@@ -73,9 +73,9 @@ This project is based on Sparroh's CheatMenu, which itself is a successor to Sli
 
 ## GitHub Actions Builds
 
-This repository includes a GitHub Actions build workflow. Because Mycopunk and Unity assemblies are not redistributable project files, the workflow expects a private repository secret named `MYCOPUNK_REFERENCES_ZIP_B64`.
+This repository includes a GitHub Actions build workflow. Because Mycopunk and Unity assemblies are not redistributable project files, the workflow expects the encrypted `references.zip.gpg` file in the repository and a private repository secret named `LARGE_SECRET_PASSPHRASE`.
 
-Create a zip with this structure, then base64 encode it into that secret:
+Create a zip with this structure, then encrypt it with GPG:
 
 ```text
 Managed/
@@ -89,6 +89,12 @@ Managed/
 BepInExCore/
   0Harmony.dll
 ```
+
+```powershell
+gpg --symmetric --cipher-algo AES256 references.zip
+```
+
+Commit the resulting `references.zip.gpg`, then add the encryption passphrase as the `LARGE_SECRET_PASSPHRASE` repository secret.
 
 On pushes, pull requests, or manual runs, the workflow builds `CheatMenu.dll` and uploads a `CheatMenuPlus` artifact. It does not publish to Thunderstore automatically.
 
